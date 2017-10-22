@@ -37,11 +37,27 @@ func main() {
     gamedata, err := gj.Array()
     fmt.Println("game data 表总样本数:", len(gamedata))
 
+    //daily.json
+    dailyjson, err := ioutil.ReadFile("statistic.json")
+    if err != nil {
+        fmt.Println("ReadFile: ", err.Error())
+        return
+    }
+
+    dj, err := simplejson.NewJson([]byte(dailyjson))
+    if err != nil {
+        panic(err.Error())
+    }
+
+    activity, err := dj.Array()
+    fmt.Println("statistic 表总样本数:", len(activity))
+
     var totalUsers, facebookUsers = 0.0, 0.0
     var registerSceneCount, upgradePartSceneCount = 0.0, 0.0
     var noEnergySceneCount, inviteFriendSceneCount = 0.0, 0.0
     var sentInvitationUsersCount, sentInvitationCount = 0.0, 0.0
     var inviteSuccessUserCount, inviteSuccessCount = 0.0, 0.0
+    var area2UsersCount, area2facebookUsersCount = 0.0, 0.0
     //逐个用户处理
     for i, _ := range users {
         var user = uj.GetIndex(i)
@@ -52,7 +68,7 @@ func main() {
         _ = err
         var registerTime = user.Get("registerTime").MustFloat64()
 
-        if registerTime < 1507003200 { // 跳过老用户，以时间戳为划分依据
+        if registerTime < 1508139848 { // 跳过老用户，以时间戳为划分依据
             continue;
         }
 
@@ -67,7 +83,7 @@ func main() {
         totalUsers += 1
 
         if facebookId == "" { // 不对未绑定用户进一步分析
-            continue;
+            //continue;
         }
         //fmt.Println("facebookId", facebookId)
         facebookUsers += 1
@@ -75,8 +91,8 @@ func main() {
         var facebookUser = gj.GetIndex(i)
         var customize = facebookUser.Get("customize")
         var bindScene = customize.Get("bindScene").MustString()
-        var bindTime = customize.Get("bindTime").MustInt64()
-        fmt.Println(bindScene, bindTime)
+        //var bindTime = customize.Get("bindTime").MustInt64()
+        //fmt.Println(bindScene, bindTime)
         switch bindScene {
         case "register":
             registerSceneCount += 1
@@ -95,42 +111,65 @@ func main() {
         var friend = facebookUser.Get("friend")
         friends, err := friend.Get("friends").Map()
         var friendsCount = len(friends)
-        fmt.Println("拥有好友数量", friendsCount)
     
         pendings, err := friend.Get("pendings").Array()
         var pendingsCount = len(pendings)
-        fmt.Println("pending数量", pendingsCount)
     
         friendRequests, err := friend.Get("requests").Array()
         var friendRequestsCount = len(friendRequests)
-        fmt.Println("requests数量", friendRequestsCount)
+
+        var sequenceId = facebookUser.Get("area").Get("mode").Get("sequenceId").MustInt()
+
+        fmt.Printf("id:%.0f\tname:%s\t拥有好友数量:%d\t发送好友申请数量:%d\t待通过申请数量:%d\t序列id:%d\n", id, name, friendsCount, pendingsCount, friendRequestsCount, sequenceId)
     
         pr, err := friend.Get("platformRequest").Array()
         var InviteRequestsCount = len(pr)
-        fmt.Println("发出Facebook邀请", InviteRequestsCount, "份")
         if InviteRequestsCount > 0 {
             sentInvitationUsersCount += 1.0
             sentInvitationCount = sentInvitationCount + float64(InviteRequestsCount)
+        }
+
+        if sequenceId >= 100 {
+            area2UsersCount += 1
+            if facebookId != "" {
+                area2facebookUsersCount += 1
+                //fmt.Println("player in area2", bindScene, bindTime)
+            }
+            //fmt.Println("发出Facebook邀请", InviteRequestsCount, "份", "sequenceId=", sequenceId)
         }
     
         var successInvitedCount = 0
         for i, _ := range pr {
             var inviteRequest = friend.Get("platformRequest").GetIndex(i)
             var complete = inviteRequest.Get("complete").MustBool()
-            var invitedId = inviteRequest.Get("platformId").MustString()
+            //var invitedId = inviteRequest.Get("platformId").MustString()
             //fmt.Println(complete)
             if complete {
                 successInvitedCount += 1
-                fmt.Println("被邀请成功的人id是", invitedId)
+                //fmt.Println("被邀请成功的人id是", invitedId)
             }
         } 
         if successInvitedCount > 0 {
             inviteSuccessUserCount += 1.0
             inviteSuccessCount = inviteSuccessCount + float64(successInvitedCount)
         }
-        fmt.Println("邀请成功", successInvitedCount, "人")
     }
+
+    for i, _ := range activity {
+        var act = dj.GetIndex(i)
+        var userId = act.Get("userId").MustInt64()
+        var time = act.Get("time").MustInt64()
+        var friendBossTime = act.Get("data").Get("friendBossTime")
+        openTime, err := friendBossTime.Get("openTime").Array()
+        _ = err
+        openCount := len(openTime)
+        killTime, err := friendBossTime.Get("killTime").Array()
+        killCount := len(killTime)
+        fmt.Printf("user id:%d\t时间:%d\t开启次数:%d\t击杀次数:%d\n", userId, time, openCount, killCount)
+    }
+
     fmt.Println("新注册用户数: ", totalUsers)
+    fmt.Println("留存到区域2用户数：", area2UsersCount, "其中绑定用户数：", area2facebookUsersCount)
     fmt.Println("绑定 Facebook 用户数: ", facebookUsers)
     fmt.Printf("Facebook 绑定率：%.2f%%\n", facebookUsers/totalUsers*100)
     fmt.Printf("游戏开始绑定数量：%.0f 占比：%.2f%%\n", registerSceneCount, registerSceneCount/facebookUsers*100)
