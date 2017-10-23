@@ -112,10 +112,10 @@ func main() {
         friends, err := friend.Get("friends").Map()
         var friendsCount = len(friends)
     
-        pendings, err := friend.Get("pendings").Array()
+        pendings, err := friend.Get("pendings").Map()
         var pendingsCount = len(pendings)
     
-        friendRequests, err := friend.Get("requests").Array()
+        friendRequests, err := friend.Get("requests").Map()
         var friendRequestsCount = len(friendRequests)
 
         var sequenceId = facebookUser.Get("area").Get("mode").Get("sequenceId").MustInt()
