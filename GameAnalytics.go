@@ -68,7 +68,7 @@ func main() {
         _ = err
         var registerTime = user.Get("registerTime").MustFloat64()
 
-        if registerTime < 1508139848 { // 跳过老用户，以时间戳为划分依据
+        if registerTime < 1508731200 { // 跳过老用户，以时间戳为划分依据
             continue;
         }
 
@@ -119,12 +119,14 @@ func main() {
         var friendRequestsCount = len(friendRequests)
 
         var sequenceId = facebookUser.Get("area").Get("mode").Get("sequenceId").MustInt()
+        var sequenceIndex = facebookUser.Get("area").Get("mode").Get("sequenceIndex").MustInt()
 
-        fmt.Printf("id:%.0f\tname:%s\t拥有好友数量:%d\t发送好友申请数量:%d\t待通过申请数量:%d\t序列id:%d\n", id, name, friendsCount, pendingsCount, friendRequestsCount, sequenceId)
+        fmt.Printf("%.0f\t%s\t%d\t%d\t%d\t%d\t%d\n", id, name, friendsCount, pendingsCount, friendRequestsCount, sequenceId, sequenceIndex)
     
         pr, err := friend.Get("platformRequest").Array()
         var InviteRequestsCount = len(pr)
         if InviteRequestsCount > 0 {
+            fmt.Println("userId", id, "发出Facebook邀请", InviteRequestsCount, "份", "sequenceId=", sequenceId)
             sentInvitationUsersCount += 1.0
             sentInvitationCount = sentInvitationCount + float64(InviteRequestsCount)
         }
@@ -135,7 +137,6 @@ func main() {
                 area2facebookUsersCount += 1
                 //fmt.Println("player in area2", bindScene, bindTime)
             }
-            //fmt.Println("发出Facebook邀请", InviteRequestsCount, "份", "sequenceId=", sequenceId)
         }
     
         var successInvitedCount = 0
@@ -165,11 +166,11 @@ func main() {
         openCount := len(openTime)
         killTime, err := friendBossTime.Get("killTime").Array()
         killCount := len(killTime)
-        fmt.Printf("user id:%d\t时间:%d\t开启次数:%d\t击杀次数:%d\n", userId, time, openCount, killCount)
+        fmt.Printf("%d\t%d\t%d\t%d\n", userId, time, openCount, killCount)
     }
 
     fmt.Println("新注册用户数: ", totalUsers)
-    fmt.Println("留存到区域2用户数：", area2UsersCount, "其中绑定用户数：", area2facebookUsersCount)
+    //fmt.Println("留存到区域2用户数：", area2UsersCount, "其中绑定用户数：", area2facebookUsersCount)
     fmt.Println("绑定 Facebook 用户数: ", facebookUsers)
     fmt.Printf("Facebook 绑定率：%.2f%%\n", facebookUsers/totalUsers*100)
     fmt.Printf("游戏开始绑定数量：%.0f 占比：%.2f%%\n", registerSceneCount, registerSceneCount/facebookUsers*100)
