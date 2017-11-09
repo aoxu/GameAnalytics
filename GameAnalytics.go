@@ -135,7 +135,8 @@ func main() {
             area2UsersCount += 1
             if facebookId != "" {
                 area2facebookUsersCount += 1
-                //fmt.Println("player in area2", bindScene, bindTime)
+                strBindTime := time.Unix(bindTime, 0).Format("2006-01-02 15:04:05")
+                fmt.Println("player in area2", bindScene, strBindTime)
             }
         }
     
