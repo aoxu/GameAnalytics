@@ -38,19 +38,19 @@ func main() {
     fmt.Println("game data 表总样本数:", len(gamedata))
 
     //daily.json
-    dailyjson, err := ioutil.ReadFile("statistic.json")
-    if err != nil {
-        fmt.Println("ReadFile: ", err.Error())
-        return
-    }
+    // dailyjson, err := ioutil.ReadFile("statistic.json")
+    // if err != nil {
+    //     fmt.Println("ReadFile: ", err.Error())
+    //     return
+    // }
 
-    dj, err := simplejson.NewJson([]byte(dailyjson))
-    if err != nil {
-        panic(err.Error())
-    }
+    // dj, err := simplejson.NewJson([]byte(dailyjson))
+    // if err != nil {
+    //     panic(err.Error())
+    // }
 
-    activity, err := dj.Array()
-    fmt.Println("statistic 表总样本数:", len(activity))
+    // activity, err := dj.Array()
+    // fmt.Println("statistic 表总样本数:", len(activity))
 
     var totalUsers, facebookUsers = 0.0, 0.0
     var registerSceneCount, upgradePartSceneCount = 0.0, 0.0
@@ -83,7 +83,7 @@ func main() {
         totalUsers += 1
 
         if facebookId == "" { // 不对未绑定用户进一步分析
-            //continue;
+            continue;
         }
         //fmt.Println("facebookId", facebookId)
         facebookUsers += 1
@@ -91,7 +91,7 @@ func main() {
         var facebookUser = gj.GetIndex(i)
         var customize = facebookUser.Get("customize")
         var bindScene = customize.Get("bindScene").MustString()
-        //var bindTime = customize.Get("bindTime").MustInt64()
+        var bindTime = customize.Get("bindTime").MustInt64()
         //fmt.Println(bindScene, bindTime)
         switch bindScene {
         case "register":
@@ -109,19 +109,19 @@ func main() {
         }
 
         var friend = facebookUser.Get("friend")
-        friends, err := friend.Get("friends").Map()
-        var friendsCount = len(friends)
+        // friends, err := friend.Get("friends").Map()
+        // var friendsCount = len(friends)
     
-        pendings, err := friend.Get("pendings").Map()
-        var pendingsCount = len(pendings)
+        // pendings, err := friend.Get("pendings").Map()
+        // var pendingsCount = len(pendings)
     
-        friendRequests, err := friend.Get("requests").Map()
-        var friendRequestsCount = len(friendRequests)
+        // friendRequests, err := friend.Get("requests").Map()
+        // var friendRequestsCount = len(friendRequests)
 
         var sequenceId = facebookUser.Get("area").Get("mode").Get("sequenceId").MustInt()
-        var sequenceIndex = facebookUser.Get("area").Get("mode").Get("sequenceIndex").MustInt()
+        // var sequenceIndex = facebookUser.Get("area").Get("mode").Get("sequenceIndex").MustInt()
 
-        fmt.Printf("%.0f\t%s\t%d\t%d\t%d\t%d\t%d\n", id, name, friendsCount, pendingsCount, friendRequestsCount, sequenceId, sequenceIndex)
+        //fmt.Printf("%.0f\t%s\t%d\t%d\t%d\t%d\t%d\n", id, name, friendsCount, pendingsCount, friendRequestsCount, sequenceId, sequenceIndex)
     
         pr, err := friend.Get("platformRequest").Array()
         var InviteRequestsCount = len(pr)
@@ -135,8 +135,12 @@ func main() {
             area2UsersCount += 1
             if facebookId != "" {
                 area2facebookUsersCount += 1
+<<<<<<< HEAD
                 strBindTime := time.Unix(bindTime, 0).Format("2006-01-02 15:04:05")
                 fmt.Println("player in area2", bindScene, strBindTime)
+=======
+                fmt.Println("player in area2", bindScene, bindTime)
+>>>>>>> 29db9c34dedc6a2160f71e799914f13a076bffc8
             }
         }
     
@@ -144,11 +148,10 @@ func main() {
         for i, _ := range pr {
             var inviteRequest = friend.Get("platformRequest").GetIndex(i)
             var complete = inviteRequest.Get("complete").MustBool()
-            //var invitedId = inviteRequest.Get("platformId").MustString()
-            //fmt.Println(complete)
+            var invitedId = inviteRequest.Get("platformId").MustString()
             if complete {
                 successInvitedCount += 1
-                //fmt.Println("被邀请成功的人id是", invitedId)
+                fmt.Println("发起邀请者id", id, "被邀请成功的人id是", invitedId)
             }
         } 
         if successInvitedCount > 0 {
@@ -157,18 +160,18 @@ func main() {
         }
     }
 
-    for i, _ := range activity {
-        var act = dj.GetIndex(i)
-        var userId = act.Get("userId").MustInt64()
-        var time = act.Get("time").MustInt64()
-        var friendBossTime = act.Get("data").Get("friendBossTime")
-        openTime, err := friendBossTime.Get("openTime").Array()
-        _ = err
-        openCount := len(openTime)
-        killTime, err := friendBossTime.Get("killTime").Array()
-        killCount := len(killTime)
-        fmt.Printf("%d\t%d\t%d\t%d\n", userId, time, openCount, killCount)
-    }
+    // for i, _ := range activity {
+    //     var act = dj.GetIndex(i)
+    //     var userId = act.Get("userId").MustInt64()
+    //     var time = act.Get("time").MustInt64()
+    //     var friendBossTime = act.Get("data").Get("friendBossTime")
+    //     openTime, err := friendBossTime.Get("openTime").Array()
+    //     _ = err
+    //     openCount := len(openTime)
+    //     killTime, err := friendBossTime.Get("killTime").Array()
+    //     killCount := len(killTime)
+    //     fmt.Printf("%d\t%d\t%d\t%d\n", userId, time, openCount, killCount)
+    // }
 
     fmt.Println("新注册用户数: ", totalUsers)
     //fmt.Println("留存到区域2用户数：", area2UsersCount, "其中绑定用户数：", area2facebookUsersCount)
