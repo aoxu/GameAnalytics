@@ -39,7 +39,7 @@ func main() {
         _ = err
         var registerTime = user.Get("user").Get("registerTime").MustFloat64()
 
-        if registerTime < 1508731200 { // 跳过老用户，以时间戳为划分依据
+        if registerTime < 1510651800 { // 跳过老用户，以时间戳为划分依据
             continue;
         }
 
@@ -93,7 +93,7 @@ func main() {
             if facebookId != "" {
                 area2facebookUsersCount += 1
                 strBindTime := time.Unix(bindTime, 0).Format("2006-01-02 15:04:05")
-                fmt.Println("player in area2", bindScene, strBindTime)
+                fmt.Println("player in area2", id, bindScene, strBindTime)
             }
         }
     
