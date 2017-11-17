@@ -8,7 +8,7 @@ import (
 )
  
 func main() {
-    var timeSince int64 = 0 // 跳过老用户，以时间戳为划分依据
+    var timeSince int64 = 1510045200 // 跳过老用户，以时间戳为划分依据
 
     //gamedata.json
     gamedatajson, err := ioutil.ReadFile("gamedata.json")
@@ -71,7 +71,7 @@ func main() {
         }
 
         if timeZone == 8 { // 跳过东8区用户，不分析
-            //continue;
+            continue;
         }
 
         //fmt.Println(id, name, timeZone)
