@@ -18,7 +18,7 @@ func main() {
     gj, err := simplejson.NewJson([]byte(gamedatajson))
     if err != nil {
         panic(err.Error())
-   }
+    }
 
     users, err := gj.Array()
     fmt.Println("game data 表总样本数:", len(users))
