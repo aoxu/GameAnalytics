@@ -8,7 +8,8 @@ import (
 )
  
 func main() {
-    var timeSince int64 = 1510045200 // 跳过老用户，以时间戳为划分依据
+    var timeSince int64 = 1512316800 // 跳过老用户，以时间戳为划分依据
+    var timeEnd int64 = 1512403200
 
     //gamedata.json
     gamedatajson, err := ioutil.ReadFile("gamedata.json")
@@ -67,7 +68,7 @@ func main() {
         var registerTime = user.Get("user").Get("registerTime").MustInt64()
 
         if registerTime < timeSince { // 跳过老用户，以时间戳为划分依据
-            continue;
+            //continue;
         }
 
         if timeZone == 8 { // 跳过东8区用户，不分析
@@ -79,89 +80,13 @@ func main() {
             name, timeZone, 0, 0, "", "", "",
         }
         //fmt.Println(id, userInfoMap[id].name, userInfoMap[id].timeZone)
-        // totalUsers += 1
-
-        // if facebookId == "" { // 不对未绑定用户进一步分析
-        //     //continue;
-        // }
-        // //fmt.Println("facebookId", facebookId)
-        // facebookUsers += 1
-
-        // var customize = facebookUser.Get("customize")
-        // var bindScene = customize.Get("bindScene").MustString()
-        // var bindTime = customize.Get("bindTime").MustInt64()
-        //fmt.Println(bindScene, bindTime)
-        // switch bindScene {
-        // case "register":
-        //     registerSceneCount += 1
-        // case "upgradePart-Ship2-Part1-Level6":
-        //     upgradePartSceneCount += 1
-        // case "upgradePart-Ship2-Part3-Level9":
-        //     upgradePartSceneCount += 1
-        // case "upgradePart-Ship2-Part4-Level9":
-        //     upgradePartSceneCount += 1
-        // case "freeEnergy":
-        //     noEnergySceneCount += 1
-        // case "inviteFriend":
-        //     inviteFriendSceneCount += 1
-        // }
-
-        // 好友数互动统计
-        // var friend = user.Get("friend")
-        // friends, err := friend.Get("friends").Map()
-        // _ = err
-        // var friendsCount = len(friends)
-
-        // pendingCount := friend.Get("pendingCount").MustInt()
-    
-        // pendings, err := friend.Get("pendings").Map()
-        // var pendingsCount = len(pendings)
-    
-        // friendRequests, err := friend.Get("requests").Map()
-        // var friendRequestsCount = len(friendRequests)
-
-        // var sequenceId = user.Get("area").Get("mode").Get("sequenceId").MustInt()
-        // var sequenceIndex = user.Get("area").Get("mode").Get("sequenceIndex").MustInt()
-
-        // fmt.Printf("%d\t%s\t%d\t%d\t%d\t%d\t%d\t%d\n", id, name, friendsCount, pendingsCount, friendRequestsCount, sequenceId, sequenceIndex, pendingCount)
-    
-        // pr, err := friend.Get("platformRequest").Array()
-        // var InviteRequestsCount = len(pr)
-        // if InviteRequestsCount > 0 {
-        //     fmt.Println("userId", id, "发出Facebook邀请", InviteRequestsCount, "份", "sequenceId=", sequenceId)
-        //     sentInvitationUsersCount += 1.0
-        //     sentInvitationCount = sentInvitationCount + float64(InviteRequestsCount)
-        // }
-
-        // if sequenceId >= 100 {
-        //     area2UsersCount += 1
-        //     if facebookId != "" {
-        //         area2facebookUsersCount += 1
-        //         fmt.Println("player in area2", bindScene, bindTime)
-        //     }
-        // }
-    
-        // var successInvitedCount = 0
-        // for i, _ := range pr {
-        //     var inviteRequest = friend.Get("platformRequest").GetIndex(i)
-        //     var complete = inviteRequest.Get("complete").MustBool()
-        //     var invitedId = inviteRequest.Get("platformId").MustString()
-        //     if complete {
-        //         successInvitedCount += 1
-        //         fmt.Println("发起邀请者id", id, "被邀请成功的人id是", invitedId)
-        //     }
-        // } 
-        // if successInvitedCount > 0 {
-        //     inviteSuccessUserCount += 1.0
-        //     inviteSuccessCount = inviteSuccessCount + float64(successInvitedCount)
-        // }
     }
 
     for i, _ := range activity {
         var act = dj.GetIndex(i)
         var userId = act.Get("userId").MustInt()
         var time = act.Get("time").MustInt64()
-        if time < timeSince {
+        if time < timeSince || time > timeEnd  { // 排除统计周期外的用户数据
             continue;
         }
 
@@ -215,15 +140,4 @@ func main() {
     for k, v := range userInfoMap {
         fmt.Printf("%d\t%d\t%d\t%d\t%s\t%s\t%s\n", k, v.timeZone, v.openCount, v.killCount, v.RaidedSummary, v.StealedSummary, v.RaidedFrom)
     }
-
-    // fmt.Println("新注册用户数: ", totalUsers)
-    // //fmt.Println("留存到区域2用户数：", area2UsersCount, "其中绑定用户数：", area2facebookUsersCount)
-    // fmt.Println("绑定 Facebook 用户数: ", facebookUsers)
-    // fmt.Printf("Facebook 绑定率：%.2f%%\n", facebookUsers/totalUsers*100)
-    // fmt.Printf("游戏开始绑定数量：%.0f 占比：%.2f%%\n", registerSceneCount, registerSceneCount/facebookUsers*100)
-    // fmt.Printf("能量耗尽绑定数量：%.0f 占比：%.2f%%\n", noEnergySceneCount, noEnergySceneCount/facebookUsers*100)
-    // fmt.Printf("部件升级绑定数量：%.0f 占比：%.2f%%\n", upgradePartSceneCount, upgradePartSceneCount/facebookUsers*100)
-    // fmt.Printf("常驻入口绑定数量：%.0f 占比：%.2f%%\n", inviteFriendSceneCount, inviteFriendSceneCount/facebookUsers*100)
-    // fmt.Printf("发过邀请的用户数：%.0f, 邀请了几个好友:%.0f\n", sentInvitationUsersCount, sentInvitationCount)
-    // fmt.Printf("邀请成功的用户数：%.0f, 邀请成功了几个好友:%.0f\n", inviteSuccessUserCount, inviteSuccessCount)
 }
