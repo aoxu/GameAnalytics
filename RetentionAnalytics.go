@@ -18,8 +18,8 @@ func main() {
 	const releaseTime0_11_0 = 1512841140
 	const future = 4070880000
 	// 注册时间
-	var regSince int64 = 0
-	var regEnd int64 = 4070880000
+	var regSince = 1512841140
+	var regEnd = 4070880000
 	// 统计周期
 	var statSince int64 = 0
 	var statEnd int64 = 4070880000
@@ -51,8 +51,8 @@ func main() {
 	}
 
 	activity, err := dj.Array()
-	// fmt.Println("game data 表总样本数:", len(users))
-	// fmt.Println("statistic 表总样本数:", len(activity))
+	fmt.Println("gamedata 表总样本数:", len(users))
+	fmt.Println("statistic 表总样本数:", len(activity))
 
 	type userInfo struct {
 		name           string
@@ -69,7 +69,7 @@ func main() {
 
 	var userInfoMap = make(map[int]userInfo)
 
-	// var totalUsers, facebookUsers = 0.0, 0.0
+	var totalUsers = 0
 	// var registerSceneCount, upgradePartSceneCount = 0.0, 0.0
 	// var noEnergySceneCount, inviteFriendSceneCount = 0.0, 0.0
 	// var sentInvitationUsersCount, sentInvitationCount = 0.0, 0.0
@@ -81,15 +81,18 @@ func main() {
 		var id = user.Get("userId").MustInt()
 		var name = user.Get("user").Get("name").MustString()
 		var timeZone = user.Get("user").Get("timeZone").MustInt()
-		var registerTime = user.Get("user").Get("registerTime").MustInt64()
+		var registerTime = user.Get("user").Get("registerTime").MustInt()
 
-		if registerTime < regSince || registerTime > regEnd { // 排除统计周期以外的用户，以时间戳为划分依据
-			//continue;
+		fmt.Println(registerTime)
+
+		if registerTime < regSince || registerTime > regEnd { // 排除注册时间范围以外的用户，以时间戳为划分依据
+			continue
 		}
 
-		if timeZone == 8 { // 跳过东8区用户，不分析
-			//continue;
+		if timeZone < -10 || timeZone > -4 { // 跳过东8区用户，不分析
+			continue
 		}
+		totalUsers++
 
 		var sequenceId = user.Get("area").Get("mode").Get("sequenceId").MustInt()
 		var area = 0
@@ -118,7 +121,7 @@ func main() {
 		var userId = act.Get("userId").MustInt()
 		var time = act.Get("time").MustInt64()
 		if time < statSince || time > statEnd { // 排除统计周期外的用户数据
-			//continue
+			continue
 		}
 
 		tmp, isExist := userInfoMap[userId]
@@ -218,6 +221,7 @@ func main() {
 			otherAreaUsersCount++
 		}
 	}
+	fmt.Printf("新进用户数：%d\n", totalUsers)
 	fmt.Printf("区域1流失总计：%d ，按飞船冲刺次数分布：\n", area1UsersCount)
 	fmt.Printf("0次:%d\n1次:%d\n2次:%d\n3次:%d\n4次:%d\n其他:%d\n", area1Rush0UsersCount, area1Rush1UsersCount, area1Rush2UsersCount, area1Rush3UsersCount, area1Rush4UsersCount, area1RushOtherUsersCount)
 	fmt.Printf("区域2流失总计：%d ，按飞船冲刺次数分布：\n", area2UsersCount)
