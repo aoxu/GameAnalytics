@@ -16,9 +16,10 @@ func main() {
 	const releaseTime0_10_0 = 1512551940
 	const releaseTime0_10_1 = 1512637740
 	const releaseTime0_11_0 = 1512841140
+	const bugfixed_0_11_0 = 1512988980
 	const future = 4070880000
 	// 注册时间
-	var regSince = 1512841140
+	var regSince = 1512662400
 	var regEnd = 4070880000
 	// 统计周期
 	var statSince int64 = 0
@@ -76,6 +77,7 @@ func main() {
 	var userInfoMap = make(map[int]userInfo)
 
 	var totalUsers = 0
+	var dailyUsers [10]int
 	// var registerSceneCount, upgradePartSceneCount = 0.0, 0.0
 	// var noEnergySceneCount, inviteFriendSceneCount = 0.0, 0.0
 	// var sentInvitationUsersCount, sentInvitationCount = 0.0, 0.0
@@ -94,11 +96,14 @@ func main() {
 			continue
 		}
 
-		if timeZone < -10 || timeZone > -4 {
-			//if timeZone != 5 {
-			//continue
+		//if timeZone < -10 || timeZone > 10 {
+		if (timeZone >= -10 && timeZone <= -2) || timeZone == 0 || timeZone == 1 || (timeZone >= 3 && timeZone <= 12) {
+			//if timeZone != 8 {
+			continue
 		}
 
+		var dayIndex = (registerTime - regSince) / 86400
+		dailyUsers[dayIndex]++
 		totalUsers++
 
 		var id = user.Get("userId").MustInt()
@@ -114,19 +119,19 @@ func main() {
 		var dashCount = user.Get("battle").Get("spaceShipDash").Get("count").MustInt()
 
 		if country == "IND" && timeZone != 5 {
-			fmt.Println(id, name, country, timeZone, device, androidVersion)
+			fmt.Printf("%d\t%s\t%s\t%d\t%s\t%s\n", id, name, country, timeZone, device, androidVersion)
 		}
 		if country == "CHN" && timeZone != 8 {
-			fmt.Println(id, name, country, timeZone, device, androidVersion)
+			fmt.Printf("%d\t%s\t%s\t%d\t%s\t%s\n", id, name, country, timeZone, device, androidVersion)
 		}
 		if country == "THA" && timeZone != 7 {
-			fmt.Println(id, name, country, timeZone, device, androidVersion)
+			fmt.Printf("%d\t%s\t%s\t%d\t%s\t%s\n", id, name, country, timeZone, device, androidVersion)
 		}
 		if country == "GBR" && timeZone != 0 {
-			fmt.Println(id, name, country, timeZone, device, androidVersion)
+			fmt.Printf("%d\t%s\t%s\t%d\t%s\t%s\n", id, name, country, timeZone, device, androidVersion)
 		}
 		if country == "USA" && (timeZone < -10 || timeZone > -4) {
-			fmt.Println(id, name, country, timeZone, device, androidVersion)
+			fmt.Printf("%d\t%s\t%s\t%d\t%s\t%s\n", id, name, country, timeZone, device, androidVersion)
 		}
 
 		var area = 0
@@ -277,7 +282,11 @@ func main() {
 			otherAreaUsersCount++
 		}
 	}
-	fmt.Printf("新进用户数：%d\n", totalUsers)
+	fmt.Println("每日新进用户数：")
+	for i := range dailyUsers {
+		fmt.Printf("%d\t", dailyUsers[i])
+	}
+	fmt.Printf("\n新进用户数：%d\n", totalUsers)
 	fmt.Printf("区域1流失总计：%d ，按飞船冲刺次数分布：\n", area1UsersCount)
 	fmt.Printf("0次:%d\n1次:%d\n2次:%d\n3次:%d\n4次:%d\n其他:%d\n", area1Rush0UsersCount, area1Rush1UsersCount, area1Rush2UsersCount, area1Rush3UsersCount, area1Rush4UsersCount, area1RushOtherUsersCount)
 	fmt.Printf("区域2流失总计：%d ，按飞船冲刺次数分布：\n", area2UsersCount)
