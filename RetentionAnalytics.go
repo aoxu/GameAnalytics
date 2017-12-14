@@ -19,8 +19,8 @@ func main() {
 	const bugfixed_0_11_0 = 1512988980
 	const future = 4070880000
 	// 注册时间
-	var regSince = 1512662400
-	var regEnd = 4070880000
+	var regSince = 1512841140
+	var regEnd = 1513180800
 	// 统计周期
 	var statSince int64 = 0
 	var statEnd int64 = 4070880000
@@ -56,38 +56,37 @@ func main() {
 	fmt.Println("statistic 表总样本数:", len(activity))
 
 	type userInfo struct {
-		name            string
-		timeZone        int
-		openCount       int
-		killCount       int
-		RaidedSummary   string
-		RaidedFrom      string
-		StealedSummary  string
-		area            int
-		rushCount       int
-		score           string
-		device          string
-		guide           string
-		gold            int
-		spaceshipLevels string
-		androidVersion  string
-		dashCount       int
+		name              string
+		timeZone          int
+		openCount         int
+		killCount         int
+		RaidedSummary     string
+		RaidedFrom        string
+		StealedSummary    string
+		area              int
+		rushCount         int
+		score             string
+		device            string
+		guide             string
+		gold              int
+		spaceshipLevels   string
+		androidVersion    string
+		dashCount         int
+		explore           bool
+		isClaimed         bool
+		isExploreUnlocked bool
+		isEnergyUsed      bool
 	}
 
 	var userInfoMap = make(map[int]userInfo)
 
 	var totalUsers = 0
 	var dailyUsers [10]int
-	// var registerSceneCount, upgradePartSceneCount = 0.0, 0.0
-	// var noEnergySceneCount, inviteFriendSceneCount = 0.0, 0.0
-	// var sentInvitationUsersCount, sentInvitationCount = 0.0, 0.0
-	// var inviteSuccessUserCount, inviteSuccessCount = 0.0, 0.0
-	// var area2UsersCount, area2facebookUsersCount = 0.0, 0.0
 	//逐个用户处理
 	for i := range users {
 		var user = gj.GetIndex(i)
 		var timeZone = user.Get("user").Get("timeZone").MustInt()
-		var country = user.Get("user").Get("country").MustString()
+		//var country = user.Get("user").Get("country").MustString()
 		var registerTime = user.Get("user").Get("registerTime").MustInt()
 
 		//fmt.Println(registerTime)
@@ -99,7 +98,7 @@ func main() {
 		//if timeZone < -10 || timeZone > 10 {
 		if (timeZone >= -10 && timeZone <= -2) || timeZone == 0 || timeZone == 1 || (timeZone >= 3 && timeZone <= 12) {
 			//if timeZone != 8 {
-			continue
+			//continue
 		}
 
 		var dayIndex = (registerTime - regSince) / 86400
@@ -111,28 +110,30 @@ func main() {
 		var device = user.Get("user").Get("phoneDevice").MustString()
 		var guide = user.Get("guide").MustMap()
 		var gold = user.Get("resource").Get("gold").Get("count").MustInt()
-		var spaceshipParts = user.Get("spaceShip").Get("spaceShips").GetIndex(2).Get("parts")
-		spaceshipPartsArray, err := user.Get("spaceShip").Get("spaceShips").GetIndex(2).Get("parts").Array()
-		_ = err
+		var spaceshipParts = user.Get("spaceShip").Get("spaceShips").Get("2").Get("parts")
+		//spaceshipPartsMap, err := user.Get("spaceShip").Get("spaceShips").Get("1").Get("parts").Map()
+		//_ = err
 		var sequenceId = user.Get("area").Get("mode").Get("sequenceId").MustInt()
+		var sequenceIndex = user.Get("area").Get("mode").Get("sequenceIndex").MustInt()
 		var androidVersion = user.Get("user").Get("phoneSystemVer").MustString()
 		var dashCount = user.Get("battle").Get("spaceShipDash").Get("count").MustInt()
+		var isExploreUnlocked = user.Get("unlockSystem").Get("spaceShipExplore").MustBool()
 
-		if country == "IND" && timeZone != 5 {
-			fmt.Printf("%d\t%s\t%s\t%d\t%s\t%s\n", id, name, country, timeZone, device, androidVersion)
-		}
-		if country == "CHN" && timeZone != 8 {
-			fmt.Printf("%d\t%s\t%s\t%d\t%s\t%s\n", id, name, country, timeZone, device, androidVersion)
-		}
-		if country == "THA" && timeZone != 7 {
-			fmt.Printf("%d\t%s\t%s\t%d\t%s\t%s\n", id, name, country, timeZone, device, androidVersion)
-		}
-		if country == "GBR" && timeZone != 0 {
-			fmt.Printf("%d\t%s\t%s\t%d\t%s\t%s\n", id, name, country, timeZone, device, androidVersion)
-		}
-		if country == "USA" && (timeZone < -10 || timeZone > -4) {
-			fmt.Printf("%d\t%s\t%s\t%d\t%s\t%s\n", id, name, country, timeZone, device, androidVersion)
-		}
+		// if country == "IND" && timeZone != 5 {
+		// 	fmt.Printf("%d\t%s\t%s\t%d\t%s\t%s\n", id, name, country, timeZone, device, androidVersion)
+		// }
+		// if country == "CHN" && timeZone != 8 {
+		// 	fmt.Printf("%d\t%s\t%s\t%d\t%s\t%s\n", id, name, country, timeZone, device, androidVersion)
+		// }
+		// if country == "THA" && timeZone != 7 {
+		// 	fmt.Printf("%d\t%s\t%s\t%d\t%s\t%s\n", id, name, country, timeZone, device, androidVersion)
+		// }
+		// if country == "GBR" && timeZone != 0 {
+		// 	fmt.Printf("%d\t%s\t%s\t%d\t%s\t%s\n", id, name, country, timeZone, device, androidVersion)
+		// }
+		// if country == "USA" && (timeZone < -10 || timeZone > -4) {
+		// 	fmt.Printf("%d\t%s\t%s\t%d\t%s\t%s\n", id, name, country, timeZone, device, androidVersion)
+		// }
 
 		var area = 0
 		if sequenceId < 100 {
@@ -147,20 +148,34 @@ func main() {
 		if sequenceId > 300 {
 			area = 4
 		}
+		var explore = false
+		if sequenceIndex > 0 {
+			explore = true
+		}
+		var isEnergyUsed = false
+		if sequenceIndex >= 6 {
+			isEnergyUsed = true
+		}
 
 		var guideIDs = ""
 		for k := range guide {
 			guideIDs += k + ","
 		}
 
-		var spaceshipLevels = ""
-		for k := range spaceshipPartsArray {
-			spaceshipLevels += strconv.Itoa(spaceshipParts.GetIndex(k).Get("level").MustInt()) + ","
-		}
+		var spaceshipLevels = strconv.Itoa(spaceshipParts.Get("1").Get("level").MustInt()) + "," +
+			strconv.Itoa(spaceshipParts.Get("2").Get("level").MustInt()) + "," +
+			strconv.Itoa(spaceshipParts.Get("3").Get("level").MustInt()) + "," +
+			strconv.Itoa(spaceshipParts.Get("4").Get("level").MustInt()) + "," +
+			strconv.Itoa(spaceshipParts.Get("5").Get("level").MustInt())
+
+		var isClaimed = spaceshipParts.Get("1").Get("claimed").MustBool()
+		// for k := range spaceshipPartsMap {
+		// 	spaceshipLevels += strconv.Itoa(spaceshipParts.Get(k).Get("level").MustInt()) + ","
+		// }
 
 		//fmt.Println(id, name, timeZone)
 		userInfoMap[id] = userInfo{
-			name, timeZone, 0, 0, "", "", "", area, 0, "", device, guideIDs, gold, spaceshipLevels, androidVersion, dashCount,
+			name, timeZone, 0, 0, "", "", "", area, 0, "", device, guideIDs, gold, spaceshipLevels, androidVersion, dashCount, explore, isClaimed, isExploreUnlocked, isEnergyUsed,
 		}
 		//fmt.Println(id, userInfoMap[id].name, userInfoMap[id].timeZone)
 	}
@@ -240,13 +255,12 @@ func main() {
 			switch v.dashCount {
 			case 0:
 				area1Rush0UsersCount++
-				//fmt.Println(v.device)
-				//fmt.Println(v.androidVersion)
-				fmt.Println(k, "guide:", v.guide, "gold:", v.gold, "spaceshipLevels:", v.spaceshipLevels)
 			case 1:
 				area1Rush1UsersCount++
+				//fmt.Printf("剩余金币:\t%d\t引导:\t%s\t飞船部件等级:\t%s\n", v.gold, v.guide, v.spaceshipLevels)
 			case 2:
 				area1Rush2UsersCount++
+				//fmt.Printf("剩余金币:\t%d\t引导:\t%s\t飞船部件等级:\t%s\t是否解锁探索:\t%v\t%v\n", v.gold, v.guide, v.spaceshipLevels, v.isExploreUnlocked, v.explore)
 			case 3:
 				area1Rush3UsersCount++
 			case 4:
@@ -259,16 +273,16 @@ func main() {
 			switch v.dashCount {
 			case 0:
 				area2Rush0UsersCount++
-				//fmt.Println("guide:", v.guide, "gold:", v.gold, "spaceshipLevels:", v.spaceshipLevels)
 			case 1:
 				area2Rush1UsersCount++
 			case 2:
 				area2Rush2UsersCount++
 			case 3:
 				area2Rush3UsersCount++
+				fmt.Printf("剩余金币:\t%d\t引导:\t%s\t飞船部件等级:\t%s\t是否探索过:\t%t\t是否消耗完能量:\t%v\n", v.gold, v.guide, v.spaceshipLevels, v.explore, v.isEnergyUsed)
 			case 4:
 				area2Rush4UsersCount++
-				//fmt.Println(v.score)
+				//fmt.Printf("剩余金币:\t%d\t引导:\t%s\t飞船部件等级:\t%s\t是否探索过:\t%t\t是否领取满级奖励：\t%v\t是否消耗完能量\t%v\t冲刺得分:\t%s\n", v.gold, v.guide, v.spaceshipLevels, v.explore, v.isClaimed, v.explore, v.score)
 			case 5:
 				area2Rush5UsersCount++
 			case 6:
@@ -286,11 +300,11 @@ func main() {
 	for i := range dailyUsers {
 		fmt.Printf("%d\t", dailyUsers[i])
 	}
-	fmt.Printf("\n新进用户数：%d\n", totalUsers)
-	fmt.Printf("区域1流失总计：%d ，按飞船冲刺次数分布：\n", area1UsersCount)
-	fmt.Printf("0次:%d\n1次:%d\n2次:%d\n3次:%d\n4次:%d\n其他:%d\n", area1Rush0UsersCount, area1Rush1UsersCount, area1Rush2UsersCount, area1Rush3UsersCount, area1Rush4UsersCount, area1RushOtherUsersCount)
-	fmt.Printf("区域2流失总计：%d ，按飞船冲刺次数分布：\n", area2UsersCount)
-	fmt.Printf("0次:%d\n1次:%d\n2次:%d\n3次:%d\n4次:%d\n5次:%d\n6次:%d\n其他:%d\n", area2Rush0UsersCount, area2Rush1UsersCount, area2Rush2UsersCount, area2Rush3UsersCount, area2Rush4UsersCount, area2Rush5UsersCount, area2Rush6UsersCount, area2RushOtherUsersCount)
+	fmt.Printf("\n新进用户数：\t%d\n", totalUsers)
+	fmt.Printf("区域1流失总计：\t%d\t ，按飞船冲刺次数分布：\n", area1UsersCount)
+	fmt.Printf("0次:\t%d\n1次:\t%d\n2次:\t%d\n3次:\t%d\n4次:\t%d\n其他:\t%d\n", area1Rush0UsersCount, area1Rush1UsersCount, area1Rush2UsersCount, area1Rush3UsersCount, area1Rush4UsersCount, area1RushOtherUsersCount)
+	fmt.Printf("区域2流失总计：\t%d\t ，按飞船冲刺次数分布：\n", area2UsersCount)
+	fmt.Printf("0次:\t%d\n1次:\t%d\n2次:\t%d\n3次:\t%d\n4次:\t%d\n5次:\t%d\n6次:\t%d\n其他:\t%d\n", area2Rush0UsersCount, area2Rush1UsersCount, area2Rush2UsersCount, area2Rush3UsersCount, area2Rush4UsersCount, area2Rush5UsersCount, area2Rush6UsersCount, area2RushOtherUsersCount)
 	fmt.Printf("区域3流失总计：%d\n", area3UsersCount)
 	fmt.Printf("其他区域流失总计：%d\n", otherAreaUsersCount)
 }
