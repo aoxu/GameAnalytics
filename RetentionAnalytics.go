@@ -17,10 +17,12 @@ func main() {
 	const releaseTime0_10_1 = 1512637740
 	const releaseTime0_11_0 = 1512841140
 	const bugfixed_0_11_0 = 1512988980
+	const releaseTime0_12_0 = 1513189560
+	const december1st = 1512057600
 	const future = 4070880000
 	// 注册时间
-	var regSince = 1512841140
-	var regEnd = 1513180800
+	var regSince = 1513189560
+	var regEnd = 1513267200
 	// 统计周期
 	var statSince int64 = 0
 	var statEnd int64 = 4070880000
@@ -76,12 +78,13 @@ func main() {
 		isClaimed         bool
 		isExploreUnlocked bool
 		isEnergyUsed      bool
+		isLoginAgain      bool
 	}
 
 	var userInfoMap = make(map[int]userInfo)
 
 	var totalUsers = 0
-	var dailyUsers [10]int
+	var dailyUsers [20]int
 	//逐个用户处理
 	for i := range users {
 		var user = gj.GetIndex(i)
@@ -95,7 +98,7 @@ func main() {
 			continue
 		}
 
-		//if timeZone < -10 || timeZone > 10 {
+		//if timeZone < 8 || timeZone > 10 {
 		if (timeZone >= -10 && timeZone <= -2) || timeZone == 0 || timeZone == 1 || (timeZone >= 3 && timeZone <= 12) {
 			//if timeZone != 8 {
 			//continue
@@ -108,9 +111,11 @@ func main() {
 		var id = user.Get("userId").MustInt()
 		var name = user.Get("user").Get("name").MustString()
 		var device = user.Get("user").Get("phoneDevice").MustString()
+		var ip = user.Get("user").Get("ipInfo").Get("ip").MustString()
+		var ipCountry = user.Get("user").Get("ipInfo").Get("ipcountry").MustString()
 		var guide = user.Get("guide").MustMap()
 		var gold = user.Get("resource").Get("gold").Get("count").MustInt()
-		var spaceshipParts = user.Get("spaceShip").Get("spaceShips").Get("2").Get("parts")
+		var spaceshipParts = user.Get("spaceShip").Get("spaceShips").Get("1").Get("parts")
 		//spaceshipPartsMap, err := user.Get("spaceShip").Get("spaceShips").Get("1").Get("parts").Map()
 		//_ = err
 		var sequenceId = user.Get("area").Get("mode").Get("sequenceId").MustInt()
@@ -118,22 +123,23 @@ func main() {
 		var androidVersion = user.Get("user").Get("phoneSystemVer").MustString()
 		var dashCount = user.Get("battle").Get("spaceShipDash").Get("count").MustInt()
 		var isExploreUnlocked = user.Get("unlockSystem").Get("spaceShipExplore").MustBool()
+		var lastLoginTime = user.Get("user").Get("lastLoginTime").MustInt()
 
-		// if country == "IND" && timeZone != 5 {
-		// 	fmt.Printf("%d\t%s\t%s\t%d\t%s\t%s\n", id, name, country, timeZone, device, androidVersion)
-		// }
-		// if country == "CHN" && timeZone != 8 {
-		// 	fmt.Printf("%d\t%s\t%s\t%d\t%s\t%s\n", id, name, country, timeZone, device, androidVersion)
-		// }
-		// if country == "THA" && timeZone != 7 {
-		// 	fmt.Printf("%d\t%s\t%s\t%d\t%s\t%s\n", id, name, country, timeZone, device, androidVersion)
-		// }
-		// if country == "GBR" && timeZone != 0 {
-		// 	fmt.Printf("%d\t%s\t%s\t%d\t%s\t%s\n", id, name, country, timeZone, device, androidVersion)
-		// }
-		// if country == "USA" && (timeZone < -10 || timeZone > -4) {
-		// 	fmt.Printf("%d\t%s\t%s\t%d\t%s\t%s\n", id, name, country, timeZone, device, androidVersion)
-		// }
+		if country == "IND" && timeZone != 5 {
+			fmt.Printf("%d\t%s\t%s\t%d\t%s\t%s\n", id, name, country, timeZone, device, androidVersion)
+		}
+		if country == "CHN" && timeZone != 8 {
+			fmt.Printf("%d\t%s\t%s\t%d\t%s\t%s\n", id, name, country, timeZone, device, androidVersion)
+		}
+		if country == "THA" && timeZone != 7 {
+			fmt.Printf("%d\t%s\t%s\t%d\t%s\t%s\n", id, name, country, timeZone, device, androidVersion)
+		}
+		if country == "GBR" && timeZone != 0 {
+			fmt.Printf("%d\t%s\t%s\t%d\t%s\t%s\n", id, name, country, timeZone, device, androidVersion)
+		}
+		if country == "USA" && (timeZone < -10 || timeZone > -4) {
+			fmt.Printf("%d\t%s\t%s\t%d\t%s\t%s\n", id, name, country, timeZone, device, androidVersion)
+		}
 
 		var area = 0
 		if sequenceId < 100 {
@@ -157,6 +163,11 @@ func main() {
 			isEnergyUsed = true
 		}
 
+		var isLoginAgain = false
+		if lastLoginTime-registerTime > 3600 {
+			isLoginAgain = true
+		}
+
 		var guideIDs = ""
 		for k := range guide {
 			guideIDs += k + ","
@@ -175,7 +186,7 @@ func main() {
 
 		//fmt.Println(id, name, timeZone)
 		userInfoMap[id] = userInfo{
-			name, timeZone, 0, 0, "", "", "", area, 0, "", device, guideIDs, gold, spaceshipLevels, androidVersion, dashCount, explore, isClaimed, isExploreUnlocked, isEnergyUsed,
+			name, timeZone, 0, 0, "", "", "", area, 0, "", device, guideIDs, gold, spaceshipLevels, androidVersion, dashCount, explore, isClaimed, isExploreUnlocked, isEnergyUsed, isLoginAgain,
 		}
 		//fmt.Println(id, userInfoMap[id].name, userInfoMap[id].timeZone)
 	}
@@ -257,7 +268,7 @@ func main() {
 				area1Rush0UsersCount++
 			case 1:
 				area1Rush1UsersCount++
-				//fmt.Printf("剩余金币:\t%d\t引导:\t%s\t飞船部件等级:\t%s\n", v.gold, v.guide, v.spaceshipLevels)
+				fmt.Printf("剩余金币:\t%d\t引导:\t%s\t飞船部件等级:\t%s\t是否二次上线且间隔超过1小时:\t%v\n", v.gold, v.guide, v.spaceshipLevels, v.isLoginAgain)
 			case 2:
 				area1Rush2UsersCount++
 				//fmt.Printf("剩余金币:\t%d\t引导:\t%s\t飞船部件等级:\t%s\t是否解锁探索:\t%v\t%v\n", v.gold, v.guide, v.spaceshipLevels, v.isExploreUnlocked, v.explore)
@@ -279,7 +290,7 @@ func main() {
 				area2Rush2UsersCount++
 			case 3:
 				area2Rush3UsersCount++
-				fmt.Printf("剩余金币:\t%d\t引导:\t%s\t飞船部件等级:\t%s\t是否探索过:\t%t\t是否消耗完能量:\t%v\n", v.gold, v.guide, v.spaceshipLevels, v.explore, v.isEnergyUsed)
+				//fmt.Printf("剩余金币:\t%d\t引导:\t%s\t飞船部件等级:\t%s\t是否探索过:\t%t\t是否消耗完能量:\t%v\n", v.gold, v.guide, v.spaceshipLevels, v.explore, v.isEnergyUsed)
 			case 4:
 				area2Rush4UsersCount++
 				//fmt.Printf("剩余金币:\t%d\t引导:\t%s\t飞船部件等级:\t%s\t是否探索过:\t%t\t是否领取满级奖励：\t%v\t是否消耗完能量\t%v\t冲刺得分:\t%s\n", v.gold, v.guide, v.spaceshipLevels, v.explore, v.isClaimed, v.explore, v.score)
